@@ -401,7 +401,6 @@ def main():
     run_dir = os.path.join("runs", args.exp_name)
     os.makedirs(run_dir, exist_ok=True)
 
-    print(f"=== Instant NGP: Optimized & Paper-Corrected ===")
     print(f"Saving outputs to: {run_dir}/")
 
     if HAS_SSIM:
