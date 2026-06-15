@@ -1,0 +1,35 @@
+# environment.yml
+# Conda environment used to produce the thesis results (suite_20260608_233928 etc.)
+#
+# Create:
+#   conda env create -f environment.yml
+#   conda activate torch-warp-ngp-env
+#
+# Versions below are pinned to what was actually recorded in results/*/git_info.json
+# for the runs used in the thesis (torch 2.8.0+cu128, numpy 1.26.4, scipy 1.13.1,
+# scikit-image 0.24.0, pyyaml 6.0.3, python 3.9.25, CUDA 12.8, cuDNN 9.10.2).
+
+name: torch-warp-ngp-env
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.9
+  - pip
+  - pytorch=2.8.0
+  - pytorch-cuda=12.8
+  - torchvision        # required by lpips (net='vgg')
+  - numpy=1.26.4
+  - pandas
+  - matplotlib
+  - scikit-image=0.24.0
+  - scipy=1.13.1
+  - pyyaml=6.0.3
+  - pip:
+      - warp-lang==1.11.0
+      - lpips==0.1.4
+      - imageio
+      - pillow         # imageio png/gif backend

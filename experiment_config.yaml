@@ -1,0 +1,172 @@
+# QUICK START
+#   Smoke test (validates pipeline end-to-end):
+#     python run_experiments.py --profile smoke
+#
+#   Full thesis experiments:
+#     python run_experiments.py --profile full
+#
+#   Resume after an SSH drop or crash:
+#     python run_experiments.py --profile full --suite_id <id_from_results/latest>
+#
+#   Skip ablation studies:
+#     python run_experiments.py --profile full --skip_ablations
+#
+# OUTPUT
+#   results/<suite_id>/
+#     manifest.jsonl          one line per run (completed or failed)
+#     config_snapshot.yaml    copy of this file at launch time
+#     git_info.json           commit hash + library versions
+#     failures.jsonl          stderr summaries for failed runs
+#     results.csv             flat table, one row per (method,scene,seed,scale,ablation)
+#     summary.md              human-readable tables
+
+paths:
+  work_dir:   <input yours here> # absolute path to the experiment root; used for all relative paths below
+  data_root:  <input yours here> # absolute path to the NeRF Blender datasets used by the dataloader
+  runs_dir:   <input yours here>
+  results_dir: <input yours here>
+
+# FULL THESIS SUITE
+profiles:
+  full:
+    training:
+      iterations:    75000
+      val_interval:  10000
+      use_warp:      true 
+      use_amp:       true 
+      hash_table_size: 524288 # 2^19
+
+    seeds: [42, 1337, 2026]
+    eval_scales: [1, 2, 4, 8]
+
+    blender_scenes:
+      - lego
+      - chair
+      - drums
+      - ficus
+      - hotdog
+      - materials
+      - mic
+      - ship
+
+    methods:
+      - tag: baseline
+        use_zip: false
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.0
+
+      - tag: zip
+        use_zip: true
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.1
+        zip_sigma_scale: 1.0
+        zip_eval_n_samples: 1
+
+    # Run on ablation_scenes × ALL seeds.
+    ablation_scenes:
+      - lego
+      - drums
+
+    ablations:
+      # Ablation 1: geometric footprint
+      - tag: zip_collapse
+        use_zip: true
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.1
+        zip_collapse_samples: true
+        zip_eval_n_samples: 1
+
+      # Ablation 2: scale-aware downweighting
+      - tag: zip_no_dw
+        use_zip: true
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.1
+        zip_no_downweighting: true
+        zip_eval_n_samples: 1
+
+      # Ablation 3: number of samples (cost-vs-quality sweep)
+      - tag: zip_k1
+        use_zip: true
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.1
+        zip_n_samples: 1
+        zip_eval_n_samples: 1
+
+      - tag: zip_k3
+        use_zip: true
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.1
+        zip_n_samples: 3
+        zip_eval_n_samples: 1
+
+      - tag: zip_k12
+        use_zip: true
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.1
+        zip_n_samples: 12
+        zip_eval_n_samples: 1
+
+      # Ablation 4: sigma_j scale (main=1.0, paper=0.5)
+      - tag: zip_sigma05
+        use_zip: true
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.1
+        zip_sigma_scale: 0.5     # paper value; underperforms for our bounded scene
+        zip_eval_n_samples: 1
+
+      # Ablation 5: NWD formula (paper=per_level_sum, current=global_mean)
+      - tag: zip_nwd_paper
+        use_zip: true
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.1
+        zip_nwd_per_level: true  # paper formula: sum of per-level means
+        zip_eval_n_samples: 1
+
+    # Runs once with --profile_interval to record CUDA stage timings.
+    # NOT included in quality-metric CSV rows; logged separately.
+    profiling:
+      enabled: true
+      profile_interval: 5000
+      scene:  lego
+      seed:   42
+      method: baseline   # tag from methods list above
+
+# Validates the full pipeline end-to-end in ~5 min.
+  smoke:
+    training:
+      iterations:    3000
+      val_interval:  500
+      use_warp:      true
+      use_amp:       true
+      hash_table_size: 524288
+
+    seeds: [42]
+    eval_scales: [1, 2, 4, 8]
+
+    blender_scenes:
+      - lego
+
+    methods:
+      - tag: baseline
+        use_zip: false
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.0
+
+      - tag: zip
+        use_zip: true
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.0
+        zip_sigma_scale: 0.5
+
+    ablation_scenes:
+      - lego
+
+    ablations:
+      - tag: zip_collapse
+        use_zip: true
+        occ_threshold: 0.1
+        zip_nwd_lambda: 0.1
+        zip_collapse_samples: true
+
+    profiling:
+      enabled: false
