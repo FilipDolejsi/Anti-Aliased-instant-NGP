@@ -46,6 +46,12 @@ separately (NeRF, Mildenhall et al., 2020). Set `data_root` in
 
 ## Reproducing Results
 
+The most effective way to run the full pipeline is to:
+
+```bash
+python run_experiments.py --profile full
+```
+
 Baseline iNGP, all 8 Blender scenes, 3 seeds:
 
 ```bash
