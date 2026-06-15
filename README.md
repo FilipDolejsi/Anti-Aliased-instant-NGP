@@ -1,14 +1,9 @@
 # Anti-aliased iNGP (AAiNGP)
 
-Filip Dolejší (k12317783)
-Supervisor: Mgr. Eric Volkmann
-Institute of Machine Learning, JKU Linz
-BSc thesis, Artificial Intelligence, 2026
-
 ## Overview
 
-This repository contains the implementation and experiment suite for the
-thesis. The code reimplements Instant NGP (Müller et al., 2022) in PyTorch
+This repository contains the implementation and experiment suite for a bachelor thesis source code.
+The code reimplements Instant NGP (Müller et al., 2022) in PyTorch
 with an NVIDIA Warp kernel backend, and augments the hash grid encoder with
 Zip-NeRF's (Barron et al., 2023) cone-based hexagonal multisampling and
 erf-based feature downweighting (AAiNGP). The two models are benchmarked
